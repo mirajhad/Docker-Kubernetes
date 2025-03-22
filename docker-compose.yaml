@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  mysql-container:
+    image: mysql:8.3.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql-Init:/docker-entrypoint-initdb.d
+    networks:
+      - ecommerce-network
+    hostname: mysql-host-productsmicroservice
+
+  products-microservice:
+    image: mirajhad01/ecommerce-products-microservice:v1.0
+    environment:
+      MYSQL_HOST: mysql-host-productsmicroservice
+      MYSQL_PASSWORD: 1234
+    ports:
+      - 8080:8080
+    networks:
+      - ecommerce-network
+
+  postgres-container:
+    image: postgres:16.1
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=eCommerceUsers
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - ecommerce-network
+    
+  users-microservice:
+    image: mirajhad01/ecommerce-users-mircoservice:v1.0
+    environment:
+      - POSTGRES_HOST=postgres-container
+      - POSTGRES_PASSWORD=1234
+    ports:
+      - 9090:9090
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
